@@ -1,0 +1,30 @@
+{
+  "name": "FileConvert — Conversor Universal de Arquivos 100% Local",
+  "short_name": "FileConvert",
+  "description": "Conversor universal de arquivos 100% local e privado. Converta áudio, imagens em lote, extraia áudio de vídeos, manipule PDFs e gere favicons sem enviar nenhum arquivo para a nuvem.",
+  "start_url": "./index.php",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#4f46e5",
+  "orientation": "any",
+  "categories": ["utilities", "productivity", "multimedia"],
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4f46e5"/>
+      <stop offset="50%" stop-color="#7c3aed"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+    <linearGradient id="arrowGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#818cf8"/>
+    </linearGradient>
+    <linearGradient id="arrowGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f43f5e"/>
+      <stop offset="100%" stop-color="#fb923c"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="14" stdDeviation="16" flood-color="#000000" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="110" fill="url(#bgGrad)"/>
+  <rect x="16" y="16" width="480" height="480" rx="96" fill="none" stroke="#ffffff" stroke-width="4" stroke-opacity="0.25"/>
+
+  <!-- File Document Central Silhouette -->
+  <g filter="url(#shadow)">
+    <!-- Document Base -->
+    <path d="M 160 110 L 290 110 L 352 172 L 352 402 L 160 402 Z" fill="#ffffff" fill-opacity="0.15" stroke="#ffffff" stroke-width="8" stroke-linejoin="round"/>
+    <!-- Folded Corner -->
+    <path d="M 290 110 L 290 172 L 352 172" fill="#ffffff" fill-opacity="0.3" stroke="#ffffff" stroke-width="6" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Circular Conversion Arrows (Rotating effect) -->
+  <g filter="url(#shadow)">
+    <!-- Top-Right Arrow -->
+    <path d="M 220 180 A 90 90 0 0 1 340 256" fill="none" stroke="url(#arrowGrad1)" stroke-width="24" stroke-linecap="round"/>
+    <polygon points="340,230 365,268 320,270" fill="url(#arrowGrad1)"/>
+
+    <!-- Bottom-Left Arrow -->
+    <path d="M 292 332 A 90 90 0 0 1 172 256" fill="none" stroke="url(#arrowGrad2)" stroke-width="24" stroke-linecap="round"/>
+    <polygon points="172,282 147,244 192,242" fill="url(#arrowGrad2)"/>
+  </g>
+
+  <!-- Central Flash / Star -->
+  <circle cx="256" cy="256" r="16" fill="#ffffff" filter="url(#shadow)"/>
+
+  <!-- 4U Badge -->
+  <rect x="360" y="420" width="110" height="52" rx="16" fill="#0f172a" fill-opacity="0.85" stroke="#38bdf8" stroke-width="3"/>
+  <text x="415" y="456" fill="#38bdf8" font-family="'Inter', sans-serif" font-weight="900" font-size="28" text-anchor="middle">4U</text>
+</svg>

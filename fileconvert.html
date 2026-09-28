@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversor Universal - 100% Local</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lamejs/1.2.1/lame.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        /* Reset para selects e options */
+        select {
+            background-color: #1e1b4b !important;
+            color: #ffffff !important;
+            appearance: auto;
+        }
+        select option {
+            background-color: #1e1b4b !important;
+            color: #ffffff !important;
+            padding: 10px;
+        }
+        
+        /* Estilo das tabs */
+        .tab-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid transparent;
+        }
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        .tab-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Área de drop */
+        .drop-zone {
+            border: 3px dashed rgba(168, 85, 247, 0.5);
+            transition: all 0.3s ease;
+        }
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: rgba(168, 85, 247, 1);
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        /* Inputs de texto */
+        input[type="text"],
+        input[type="number"],
+        textarea {
+            background-color: rgba(30, 27, 75, 0.8) !important;
+            color: #ffffff !important;
+        }
+        input::placeholder,
+        textarea::placeholder {
+            color: rgba(255, 255, 255, 0.5) !important;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 min-h-screen text-white">
+    
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-bold mb-3 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                🔄 Conversor Universal
+            </h1>
+            <p class="text-gray-300 text-lg">100% Local - Seus arquivos nunca saem do seu navegador 🔒</p>
+        </div>
+
+        <!-- Tabs Navigation -->
+        <div class="flex flex-wrap gap-2 mb-6 justify-center">
+            <button onclick="switchTab('audio')" id="tab-audio" class="tab-btn active px-4 md:px-6 py-3 rounded-lg font-semibold transition-all">
+                🎵 Áudio
+            </button>
+            <button onclick="switchTab('image')" id="tab-image" class="tab-btn px-4 md:px-6 py-3 rounded-lg font-semibold transition-all">
+                🖼️ Imagem
+            </button>
+            <button onclick="switchTab('document')" id="tab-document" class="tab-btn px-4 md:px-6 py-3 rounded-lg font-semibold transition-all">
+                📄 Documento
+            </button>
+            <button onclick="switchTab('video')" id="tab-video" class="tab-btn px-4 md:px-6 py-3 rounded-lg font-semibold transition-all">
+                🎬 Vídeo
+            </button>
+            <button onclick="switchTab('other')" id="tab-other" class="tab-btn px-4 md:px-6 py-3 rounded-lg font-semibold transition-all">
+                📦 Outros
+            </button>
+        </div>
+
+        <!-- Audio Tab -->
+        <div id="content-audio" class="tab-content">
+            <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 md:p-8 shadow-2xl">
+                <h2 class="text-2xl font-bold mb-4">🎵 Conversão de Áudio</h2>
+                
+                <div id="audio-drop-zone" class="drop-zone rounded-xl p-8 md:p-12 text-center cursor-pointer mb-6">
+                    <p class="text-xl mb-2">📁 Arraste um arquivo de áudio aqui</p>
+                    <p class="text-gray-400 mb-4">ou clique para selecionar</p>
+                    <p class="text-sm text-gray-500">Formatos: WAV, OGG, WEBM, FLAC, AAC, M4A, MP3</p>
+                    <input type="file" id="audio-input" accept="audio/*" class="hidden">
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div>
+                        <label class="block mb-2 font-semibold">Formato de Saída:</label>
+                        <select id="audio-output-format" class="w-full border border-purple-400 rounded-lg px-4 py-2">
+                            <option value="mp3">MP3</option>
+                            <option value="wav">WAV</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block mb-2 font-semibold">Bitrate (MP3):</label>
+                        <select id="audio-bitrate" class="w-full border border-purple-400 rounded-lg px-4 py-2">
+                            <option value="128">128 kbps</option>
+                            <option value="192" selected>192 kbps</option>
+                            <option value="256">256 kbps</option>
+                            <option value="320">320 kbps</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block mb-2 font-semibold">Canais:</label>
+                        <select id="audio-channels" class="w-full border border-purple-400 rounded-lg px-4 py-2">
+                            <option value="2">Estéreo</option>
+                            <option value="1">Mono</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="audio-preview" class="hidden mb-6">
+                    <p class="font-semibold mb-2">Preview:</p>
+                    <audio id="audio-player" controls class="w-full"></audio>
+                    <p id="audio-info" class="text-sm text-gray-400 mt-2"></p>
+                </div>
+
+                <div id="audio-progress" class="hidden mb-6">
+                    <div class="bg-white/20 rounded-full h-4 overflow-hidden">
+                        <div id="audio-progress-bar" class="bg-gradient-to-r from-green-400 to-blue-500 h-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                    <p id="audio-progress-text" class="text-center mt-2 text-sm"></p>
+                </div>
+
+                <button id="audio-convert-btn" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-4 rounded-xl transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none" disabled>
+                    Converter Áudio
+                </button>
+            </div>
+        </div>
+
+        <!-- Image Tab -->
+        <div id="content-image" class="tab-content hidden">
+            <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 md:p-8 shadow-2xl">
+                <h2 class="text-2xl font-bold mb-4">🖼️ Conversão de Imagem</h2>
+                
+                <div id="image-drop-zone" class="drop-zone rounded-xl p-8 md:p-12 text-center cursor-pointer mb-6">
+                    <p class="text-xl mb-2">🖼️ Arraste uma imagem aqui</p>
+                    <p class="text-gray-400 mb-4">ou clique para selecionar</p>
+                    <p class="text-sm text-gray-500">Formatos: JPG, PNG, WebP, GIF, BMP, SVG</p>
+                    <input type="file" id="image-input" accept="image/*" class="hidden">
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label class="block mb-2 font-semibold">Formato de Saída:</label>
+                        <select id="image-output-format" class="w-full border border-blue-400 rounded-lg px-4 py-2">
+                            <option value="png">PNG</option>
+                            <option value="jpeg">JPEG</option>
+                            <option value="webp">WebP</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block mb-2 font-semibold">Qualidade: <span id="image-quality-value">90</span>%</label>
+                        <input type="range" id="image-quality" min="1" max="100" value="90" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label class="block mb-2 font-semibold">Largura (px):</label>
+                        <input type="number" id="image-width" placeholder="Auto" class="w-full border border-blue-400 rounded-lg px-4 py-2">
+                    </div>
+                    <div>
+                        <label class="block mb-2 font-semibold">Altura (px):</label>
+                        <input type="number" id="image-height" placeholder="Auto" class="w-full border border-blue-400 rounded-lg px-4 py-2">
+                    </div>
+                </div>
+
+                <div id="image-preview" class="hidden mb-6 text-center">
+                    <p class="font-semibold mb-2">Preview:</p>
+                    <img id="image-preview-img" class="max-w-full max-h-64 mx-auto rounded-lg border border-blue-400">
+                    <p id="image-info" class="text-sm text-gray-400 mt-2"></p>
+                </div>
+
+                <button id="image-convert-btn" class="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-bold py-4 rounded-xl transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none" disabled>
+                    Converter Imagem
+                </button>
+            </div>
+        </div>
+
+        <!-- Document Tab -->
+        <div id="content-document" class="tab-content hidden">
+            <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 md:p-8 shadow-2xl">
+                <h2 class="text-2xl font-bold mb-4">📄 Conversão de Documentos</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- CSV <-> JSON -->
+                    <div class="bg-white/5 p-6 rounded-xl border border-white/10">
+                        <h3 class="text-xl font-bold mb-4">📊 CSV ↔ JSON</h3>
+                        <p class="text-gray-400 text-sm mb-4">Converte automaticamente baseado na extensão do arquivo</p>
+                        <input type="file" id="csv-json-input" accept=".csv,.json" class="mb-4 w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-purple-600 file:text-white hover:file:bg-purple-700">
+                        <button id="csv-json-convert" class="w-full bg-green-600 hover:bg-green-700 py-3 rounded-lg font-semibold transition-all">
+                            Converter
+                        </button>
+                    </div>
+
+                    <!-- Markdown -> HTML -->
+                    <div class="bg-white/5 p-6 rounded-xl border border-white/10">
+                        <h3 class="text-xl font-bold mb-4">📝 Markdown → HTML</h3>
+                        <textarea id="markdown-input" placeholder="# Título&#10;**negrito** e *itálico*&#10;[link](url)" class="w-full border border-gray-600 rounded-lg px-4 py-2 mb-4 h-32 resize-none"></textarea>
+                        <button id="markdown-convert" class="w-full bg-orange-600 hover:bg-orange-700 py-3 rounded-lg font-semibold transition-all">
+                            Converter para HTML
+                        </button>
+                    </div>
+
+                    <!-- Text -> PDF -->
+                    <div class="bg-white/5 p-6 rounded-xl border border-white/10">
+                        <h3 class="text-xl font-bold mb-4">📕 Texto → PDF</h3>
+                        <textarea id="text-pdf-input" placeholder="Digite seu texto aqui..." class="w-full border border-gray-600 rounded-lg px-4 py-2 mb-4 h-32 resize-none"></textarea>
+                        <button id="text-pdf-convert" class="w-full bg-red-600 hover:bg-red-700 py-3 rounded-lg font-semibold transition-all">
+                            Gerar PDF
+                        </button>
+                    </div>
+
+                    <!-- JSON <-> XML -->
+                    <div class="bg-white/5 p-6 rounded-xl border border-white/10">
+                        <h3 class="text-xl font-bold mb-4">🔄 JSON ↔ XML</h3>
+                        <textarea id="json-xml-input" placeholder='{"nome": "valor"} ou <root>...</root>' class="w-full border border-gray-600 rounded-lg px-4 py-2 mb-4 h-32 resize-none"></textarea>
+                        <button id="json-xml-convert" class="w-full bg-purple-600 hover:bg-purple-700 py-3 rounded-lg font-semibold transition-all">
+                            Converter
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Video Tab -->
+        <div id="content-video" class="tab-content hidden">
+            <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 md:p-8 shadow-2xl">
+                <h2 class="text-2xl font-bold mb-4">🎬 Processamento de Vídeo (Leve)</h2>
+                
+                <div class="bg-yellow-500/20 border border-yellow-500 rounded-lg p-4 mb-6">
+                    <p class="text-yellow-200">⚠️ <strong>Limitação:</strong> Apenas vídeos pequenos (até 50MB). Processamento intensivo pode demorar.</p>
+                </div>
+                
+                <div id="video-drop-zone" class="drop-zone rounded-xl p-8 md:p-12 text-center cursor-pointer mb-6">
+                    <p class="text-xl mb-2">🎬 Arraste um vídeo pequeno aqui</p>
+                    <p class="text-gray-400 mb-4">ou clique para selecionar</p>
+                    <p class="text-sm text-gray-500">Formatos: MP4, WebM (máx 50MB)</p>
+                    <input type="file" id="video-input" accept="video/mp4,video/webm,video/ogg" class="hidden">
+                </div>
+
+                <div class="mb-6">
+                    <label class="block mb-2 font-semibold">Operação:</label>
+                    <select id="video-operation" class="w-full border border-red-400 rounded-lg px-4 py-2">
+                        <option value="extract-audio">🎵 Extrair Áudio (MP3)</option>
+                        <option value="create-gif">🖼️ Criar GIF (primeiros 5 segundos)</option>
+                    </select>
+                </div>
+
+                <div id="video-preview" class="hidden mb-6">
+                    <p class="font-semibold mb-2">Preview:</p>
+                    <video id="video-player" controls class="w-full max-h-64 rounded-lg bg-black"></video>
+                    <p id="video-info" class="text-sm text-gray-400 mt-2"></p>
+                </div>
+
+                <div id="video-progress" class="hidden mb-6">
+                    <div class="bg-white/20 rounded-full h-4 overflow-hidden">
+                        <div id="video-progress-bar" class="bg-gradient-to-r from-red-400 to-pink-500 h-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                    <p id="video-progress-text" class="text-center mt-2 text-sm"></p>
+                </div>
+
+                <button id="video-convert-btn" class="w-full bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white font-bold py-4 rounded-xl transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none" disabled>
+                    Processar Vídeo
+                </button>
+            </div>
+        </div>
+
+        <!-- Other Tab -->
+        <div id="content-other" class="tab-content hidden">
+            <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 md:p-8 shadow-2xl">
+                <h2 class="text-2xl font-bold mb-4">📦 Outras Ferramentas</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Base64 Encoder/Decoder -->
+                    <div class="bg-white/5 p-6 rounded-xl border border-white/10">
+                        <h3 class="text-xl font-bold mb-4">🔐 Base64 ↔ Arquivo</h3>
+                        <input type="file" id="base64-file-input" class="mb-4 w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-indigo-600 file:text-white hover:file:bg-indigo-700">
+                        <textarea id="base64-text" placeholder="Ou cole Base64 aqui para decodificar..." class="w-full border border-gray-600 rounded-lg px-4 py-2 mb-4 h-24 resize-none text-sm"></textarea>
+                        <div class="flex gap-2">
+                            <button id="base64-encode" class="flex-1 bg-indigo-600 hover:bg-indigo-700 py-2 rounded-lg font-semibold transition-all">
+                                Codificar
+                            </button>
+                            <button id="base64-decode" class="flex-1 bg-indigo-700 hover:bg-indigo-800 py-2 rounded-lg font-semibold transition-all">
+                                Decodificar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- QR Code Generator -->
+                    <div class="bg-white/5 p-6 rounded-xl border border-white/10">
+                        <h3 class="text-xl font-bold mb-4">📱 Gerar QR Code</h3>
+                        <input type="text" id="qr-text" placeholder="Digite texto ou URL..." class="w-full border border-gray-600 rounded-lg px-4 py-2 mb-4">
+                        <div id="qr-result" class="bg-white p-4 rounded-lg mb-4 flex items-center justify-center min-h-[180px]">
+                            <p class="text-gray-500 text-sm">QR Code aparecerá aqui</p>
+                        </div>
+                        <button id="qr-generate" class="w-full bg-teal-600 hover:bg-teal-700 py-2 rounded-lg font-semibold transition-all">
+                            Gerar QR Code
+                        </button>
+                    </div>
+
+                    <!-- ZIP Compressor -->
+                    <div class="bg-white/5 p-6 rounded-xl border border-white/10">
+                        <h3 class="text-xl font-bold mb-4">📦 Criar ZIP</h3>
+                        <input type="file" id="zip-files-input" multiple class="mb-4 w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-yellow-600 file:text-white hover:file:bg-yellow-700">
+                        <p class="text-sm text-gray-400 mb-4" id="zip-files-count">Nenhum arquivo selecionado</p>
+                        <button id="zip-create" class="w-full bg-yellow-600 hover:bg-yellow-700 py-2 rounded-lg font-semibold transition-all">
+                            Criar ZIP
+                        </button>
+                    </div>
+
+                    <!-- Hash Generator -->
+                    <div class="bg-white/5 p-6 rounded-xl border border-white/10">
+                        <h3 class="text-xl font-bold mb-4">🔒 Gerar Hash</h3>
+                        <textarea id="hash-input" placeholder="Digite o texto..." class="w-full border border-gray-600 rounded-lg px-4 py-2 mb-4 h-20 resize-none"></textarea>
+                        <select id="hash-type" class="w-full border border-gray-600 rounded-lg px-4 py-2 mb-4">
+                            <option value="SHA-256">SHA-256</option>
+                            <option value="SHA-1">SHA-1</option>
+                            <option value="SHA-512">SHA-512</option>
+                        </select>
+                        <button id="hash-generate" class="w-full bg-pink-600 hover:bg-pink-700 py-2 rounded-lg font-semibold mb-4 transition-all">
+                            Gerar Hash
+                        </button>
+                        <div id="hash-result" class="bg-black/30 p-3 rounded text-xs break-all font-mono hidden select-all"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-8 text-gray-500 text-sm">
+            <p>Feito com ❤️ - Todos os processos são executados localmente no seu navegador</p>
+        </div>
+    </div>
+
+    <script>
+        // ============ TAB SWITCHING ============
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById('content-' + tabName).classList.remove('hidden');
+            document.getElementById('tab-' + tabName).classList.add('active');
+        }
+
+        // ============ UTILITY FUNCTIONS ============
+        function downloadFile(blob, filename) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        }
+
+        function setupDropZone(dropZoneId, inputId, handleFunction) {
+            const dropZone = document.getElementById(dropZoneId);
+            const input = document.getElementById(inputId);
+
+            dropZone.addEventListener('click', () => input.click());
+            
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('dragover');
+            });
+            
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('dragover');
+            });
+            
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+                if (e.dataTransfer.files.length > 0) {
+                    handleFunction(e.dataTransfer.files[0]);
+                }
+            });
+            
+            input.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFunction(e.target.files[0]);
+                }
+            });
+        }
+
+        function convertFloat32ToInt16(buffer) {
+            const l = buffer.length;
+            const buf = new Int16Array(l);
+            for (let i = 0; i < l; i++) {
+                const s = Math.max(-1, Math.min(1, buffer[i]));
+                buf[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+            }
+            return buf;
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
+            return (bytes / 1024 / 1024).toFixed(2) + ' MB';
+        }
+
+        // ============ AUDIO CONVERTER ============
+        let audioFile = null;
+        let audioBuffer = null;
+
+        setupDropZone('audio-drop-zone', 'audio-input', handleAudioFile);
+
+        function handleAudioFile(file) {
+            audioFile = file;
+            document.getElementById('audio-player').src = URL.createObjectURL(file);
+            document.getElementById('audio-preview').classList.remove('hidden');
+            document.getElementById('audio-info').textContent = `${file.name} - ${formatFileSize(file.size)}`;
+            document.getElementById('audio-convert-btn').disabled = false;
+        }
+
+        document.getElementById('audio-convert-btn').addEventListener('click', async () => {
+            if (!audioFile) return;
+
+            const outputFormat = document.getElementById('audio-output-format').value;
+            const btn = document.getElementById('audio-convert-btn');
+            const progress = document.getElementById('audio-progress');
+            const progressBar = document.getElementById('audio-progress-bar');
+            const progressText = document.getElementById('audio-progress-text');
+
+            btn.disabled = true;
+            progress.classList.remove('hidden');
+            progressText.textContent = 'Carregando áudio...';
+            progressBar.style.width = '10%';
+
+            try {
+                const arrayBuffer = await audioFile.arrayBuffer();
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                
+                progressBar.style.width = '20%';
+                progressText.textContent = 'Processando...';
+
+                if (outputFormat === 'mp3') {
+                    await convertToMp3(progressBar, progressText);
+                } else if (outputFormat === 'wav') {
+                    await convertToWav(progressBar, progressText);
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Erro ao processar áudio: ' + error.message);
+                progress.classList.add('hidden');
+            }
+            
+            btn.disabled = false;
+        });
+
+        async function convertToMp3(progressBar, progressText) {
+            const bitrate = parseInt(document.getElementById('audio-bitrate').value);
+            const numChannels = parseInt(document.getElementById('audio-channels').value);
+            const sampleRate = audioBuffer.sampleRate;
+            
+            const mp3encoder = new lamejs.Mp3Encoder(numChannels, sampleRate, bitrate);
+            const mp3Data = [];
+            const sampleBlockSize = 1152;
+
+            const leftChannel = audioBuffer.getChannelData(0);
+            const rightChannel = audioBuffer.numberOfChannels > 1 ? audioBuffer.getChannelData(1) : leftChannel;
+
+            const totalSamples = leftChannel.length;
+
+            for (let i = 0; i < totalSamples; i += sampleBlockSize) {
+                const leftChunk = leftChannel.subarray(i, i + sampleBlockSize);
+                const rightChunk = rightChannel.subarray(i, i + sampleBlockSize);
+                
+                const left = convertFloat32ToInt16(leftChunk);
+                const right = numChannels === 2 ? convertFloat32ToInt16(rightChunk) : null;
+                
+                let mp3buf;
+                if (numChannels === 2) {
+                    mp3buf = mp3encoder.encodeBuffer(left, right);
+                } else {
+                    mp3buf = mp3encoder.encodeBuffer(left);
+                }
+                
+                if (mp3buf.length > 0) {
+                    mp3Data.push(mp3buf);
+                }
+
+                // Update progress
+                if (i % (sampleBlockSize * 100) === 0) {
+                    const percent = 20 + (i / totalSamples) * 75;
+                    progressBar.style.width = percent + '%';
+                    progressText.textContent = `Convertendo: ${Math.round(percent)}%`;
+                    await new Promise(r => setTimeout(r, 0)); // Yield to UI
+                }
+            }
+
+            const finalMp3 = mp3encoder.flush();
+            if (finalMp3.length > 0) {
+                mp3Data.push(finalMp3);
+            }
+
+            const blob = new Blob(mp3Data, { type: 'audio/mp3' });
+            downloadFile(blob, audioFile.name.replace(/\.[^.]+$/, '.mp3'));
+
+            progressBar.style.width = '100%';
+            progressText.textContent = '✅ Concluído! Download iniciado.';
+        }
+
+        async function convertToWav(progressBar, progressText) {
+            const numChannels = audioBuffer.numberOfChannels;
+            const sampleRate = audioBuffer.sampleRate;
+            const bitsPerSample = 16;
+            const length = audioBuffer.length * numChannels * (bitsPerSample / 8);
+            const buffer = new ArrayBuffer(44 + length);
+            const view = new DataView(buffer);
+
+            const writeString = (offset, str) => {
+                for (let i = 0; i < str.length; i++) {
+                    view.setUint8(offset + i, str.charCodeAt(i));
+                }
+            };
+
+            // WAV header
+            writeString(0, 'RIFF');
+            view.setUint32(4, 36 + length, true);
+            writeString(8, 'WAVE');
+            writeString(12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, numChannels, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * numChannels * (bitsPerSample / 8), true);
+            view.setUint16(32, numChannels * (bitsPerSample / 8), true);
+            view.setUint16(34, bitsPerSample, true);
+            writeString(36, 'data');
+            view.setUint32(40, length, true);
+
+            // Write audio data
+            const channels = [];
+            for (let i = 0; i < numChannels; i++) {
+                channels.push(audioBuffer.getChannelData(i));
+            }
+
+            let offset = 44;
+            for (let i = 0; i < audioBuffer.length; i++) {
+                for (let ch = 0; ch < numChannels; ch++) {
+                    const sample = Math.max(-1, Math.min(1, channels[ch][i]));
+                    view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7FFF, true);
+                    offset += 2;
+                }
+                
+                if (i % 50000 === 0) {
+                    const percent = 20 + (i / audioBuffer.length) * 75;
+                    progressBar.style.width = percent + '%';
+                    progressText.textContent = `Convertendo: ${Math.round(percent)}%`;
+                    await new Promise(r => setTimeout(r, 0));
+                }
+            }
+
+            const blob = new Blob([buffer], { type: 'audio/wav' });
+            downloadFile(blob, audioFile.name.replace(/\.[^.]+$/, '.wav'));
+
+            progressBar.style.width = '100%';
+            progressText.textContent = '✅ Concluído! Download iniciado.';
+        }
+
+        // ============ IMAGE CONVERTER ============
+        let imageFile = null;
+        let loadedImage = null;
+
+        setupDropZone('image-drop-zone', 'image-input', handleImageFile);
+
+        document.getElementById('image-quality').addEventListener('input', (e) => {
+            document.getElementById('image-quality-value').textContent = e.target.value;
+        });
+
+        function handleImageFile(file) {
+            imageFile = file;
+            const img = new Image();
+            img.onload = function() {
+                loadedImage = img;
+                document.getElementById('image-preview-img').src = img.src;
+                document.getElementById('image-preview').classList.remove('hidden');
+                document.getElementById('image-info').textContent = `${file.name} - ${img.width}×${img.height} - ${formatFileSize(file.size)}`;
+                document.getElementById('image-convert-btn').disabled = false;
+            };
+            img.onerror = function() {
+                alert('Erro ao carregar imagem');
+            };
+            img.src = URL.createObjectURL(file);
+        }
+
+        document.getElementById('image-convert-btn').addEventListener('click', () => {
+            if (!loadedImage) return;
+
+            const format = document.getElementById('image-output-format').value;
+            const quality = document.getElementById('image-quality').value / 100;
+            const targetWidth = document.getElementById('image-width').value;
+            const targetHeight = document.getElementById('image-height').value;
+
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            let width = loadedImage.width;
+            let height = loadedImage.height;
+
+            if (targetWidth && targetHeight) {
+                width = parseInt(targetWidth);
+                height = parseInt(targetHeight);
+            } else if (targetWidth) {
+                width = parseInt(targetWidth);
+                height = Math.round((loadedImage.height / loadedImage.width) * width);
+            } else if (targetHeight) {
+                height = parseInt(targetHeight);
+                width = Math.round((loadedImage.width / loadedImage.height) * height);
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            
+            // Fill with white for JPEG (no transparency)
+            if (format === 'jpeg') {
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(0, 0, width, height);
+            }
+            
+            ctx.drawImage(loadedImage, 0, 0, width, height);
+
+            const mimeTypes = {
+                'png': 'image/png',
+                'jpeg': 'image/jpeg',
+                'webp': 'image/webp'
+            };
+
+            const extensions = {
+                'png': 'png',
+                'jpeg': 'jpg',
+                'webp': 'webp'
+            };
+
+            canvas.toBlob((blob) => {
+                if (blob) {
+                    downloadFile(blob, imageFile.name.replace(/\.[^.]+$/, '.' + extensions[format]));
+                } else {
+                    alert('Erro ao converter imagem');
+                }
+            }, mimeTypes[format], quality);
+        });
+
+        // ============ DOCUMENT CONVERTERS ============
+        
+        // CSV <-> JSON
+        document.getElementById('csv-json-convert').addEventListener('click', () => {
+            const fileInput = document.getElementById('csv-json-input');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Selecione um arquivo CSV ou JSON');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const content = e.target.result;
+                    
+                    if (file.name.toLowerCase().endsWith('.csv')) {
+                        // CSV to JSON
+                        const lines = content.split('\n').filter(line => line.trim());
+                        if (lines.length < 2) {
+                            alert('CSV deve ter cabeçalho e pelo menos uma linha de dados');
+                            return;
+                        }
+                        
+                        const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+                        const json = lines.slice(1).map(line => {
+                            const values = line.split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+                            const obj = {};
+                            headers.forEach((header, i) => {
+                                obj[header] = values[i] || '';
+                            });
+                            return obj;
+                        });
+                        
+                        const blob = new Blob([JSON.stringify(json, null, 2)], { type: 'application/json' });
+                        downloadFile(blob, file.name.replace('.csv', '.json'));
+                        
+                    } else if (file.name.toLowerCase().endsWith('.json')) {
+                        // JSON to CSV
+                        const json = JSON.parse(content);
+                        
+                        if (!Array.isArray(json) || json.length === 0) {
+                            alert('JSON deve ser um array de objetos');
+                            return;
+                        }
+                        
+                        const headers = Object.keys(json[0]);
+                        const csvLines = [
+                            headers.join(','),
+                            ...json.map(obj => headers.map(h => `"${(obj[h] || '').toString().replace(/"/g, '""')}"`).join(','))
+                        ];
+                        
+                        const blob = new Blob([csvLines.join('\n')], { type: 'text/csv' });
+                        downloadFile(blob, file.name.replace('.json', '.csv'));
+                    }
+                } catch (error) {
+                    alert('Erro ao converter: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        // Markdown to HTML
+        document.getElementById('markdown-convert').addEventListener('click', () => {
+            const markdown = document.getElementById('markdown-input').value;
+            
+            if (!markdown.trim()) {
+                alert('Digite algum texto Markdown');
+                return;
+            }
+            
+            // Simple Markdown parser
+            let html = markdown
+                .replace(/^#### (.*$)/gim, '<h4>$1</h4>')
+                .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+                .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+                .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+                .replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/~~(.*?)~~/g, '<del>$1</del>')
+                .replace(/`(.*?)`/g, '<code>$1</code>')
+                .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2">$1</a>')
+                .replace(/^\- (.*$)/gim, '<li>$1</li>')
+                .replace(/\n\n/g, '</p><p>')
+                .replace(/\n/g, '<br>');
+
+            const fullHtml = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documento Convertido</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; line-height: 1.6; color: #333; }
+        h1, h2, h3, h4 { color: #222; margin-top: 1.5em; }
+        code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; }
+        a { color: #0066cc; }
+        li { margin: 0.5em 0; }
+    </style>
+</head>
+<body>
+    <p>${html}</p>
+</body>
+</html>`;
+
+            const blob = new Blob([fullHtml], { type: 'text/html' });
+            downloadFile(blob, 'documento.html');
+        });
+
+        // Text to PDF
+        document.getElementById('text-pdf-convert').addEventListener('click', () => {
+            const text = document.getElementById('text-pdf-input').value;
+            
+            if (!text.trim()) {
+                alert('Digite algum texto');
+                return;
+            }
+
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                const lines = doc.splitTextToSize(text, 180);
+                doc.setFont('helvetica');
+                doc.setFontSize(12);
+                doc.text(lines, 15, 20);
+                
+                doc.save('documento.pdf');
+            } catch (error) {
+                alert('Erro ao gerar PDF: ' + error.message);
+            }
+        });
+
+        // JSON <-> XML
+        document.getElementById('json-xml-convert').addEventListener('click', () => {
+            const input = document.getElementById('json-xml-input').value.trim();
+            
+            if (!input) {
+                alert('Digite JSON ou XML');
+                return;
+            }
+
+            try {
+                if (input.startsWith('{') || input.startsWith('[')) {
+                    // JSON to XML
+                    const json = JSON.parse(input);
+                    const xml = jsonToXml(json);
+                    const blob = new Blob([xml], { type: 'application/xml' });
+                    downloadFile(blob, 'convertido.xml');
+                } else if (input.startsWith('<')) {
+                    // XML to JSON
+                    const parser = new DOMParser();
+                    const xmlDoc = parser.parseFromString(input, 'text/xml');
+                    
+                    const parseError = xmlDoc.querySelector('parsererror');
+                    if (parseError) {
+                        throw new Error('XML inválido');
+                    }
+                    
+                    const json = xmlToJson(xmlDoc.documentElement);
+                    const blob = new Blob([JSON.stringify(json, null, 2)], { type: 'application/json' });
+                    downloadFile(blob, 'convertido.json');
+                } else {
+                    alert('Formato não reconhecido. Comece com { ou [ para JSON, ou < para XML.');
+                }
+            } catch (error) {
+                alert('Erro ao converter: ' + error.message);
+            }
+        });
+
+        function jsonToXml(obj, rootName = 'root') {
+            let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+            
+            const buildXml = (data, name, indent = '') => {
+                if (Array.isArray(data)) {
+                    return data.map(item => buildXml(item, name, indent)).join('\n');
+                } else if (typeof data === 'object' && data !== null) {
+                    let result = `${indent}<${name}>`;
+                    const keys = Object.keys(data);
+                    if (keys.length > 0) {
+                        result += '\n';
+                        keys.forEach(key => {
+                            result += buildXml(data[key], key, indent + '  ') + '\n';
+                        });
+                        result += `${indent}</${name}>`;
+                    } else {
+                        result += `</${name}>`;
+                    }
+                    return result;
+                } else {
+                    return `${indent}<${name}>${data}</${name}>`;
+                }
+            };
+            
+            xml += buildXml(obj, rootName);
+            return xml;
+        }
+
+        function xmlToJson(node) {
+            const obj = {};
+            
+            // Handle attributes
+            if (node.attributes && node.attributes.length > 0) {
+                obj['@attributes'] = {};
+                for (let attr of node.attributes) {
+                    obj['@attributes'][attr.name] = attr.value;
+                }
+            }
+            
+            // Handle child nodes
+            if (node.hasChildNodes()) {
+                for (let child of node.childNodes) {
+                    if (child.nodeType === Node.TEXT_NODE) {
+                        const text = child.textContent.trim();
+                        if (text) {
+                            if (node.childNodes.length === 1) {
+                                return text;
+                            }
+                            obj['#text'] = text;
+                        }
+                    } else if (child.nodeType === Node.ELEMENT_NODE) {
+                        const childResult = xmlToJson(child);
+                        if (obj[child.nodeName]) {
+                            if (!Array.isArray(obj[child.nodeName])) {
+                                obj[child.nodeName] = [obj[child.nodeName]];
+                            }
+                            obj[child.nodeName].push(childResult);
+                        } else {
+                            obj[child.nodeName] = childResult;
+                        }
+                    }
+                }
+            }
+            
+            return obj;
+        }
+
+        // ============ VIDEO PROCESSOR ============
+        let videoFile = null;
+
+        setupDropZone('video-drop-zone', 'video-input', handleVideoFile);
+
+        function handleVideoFile(file) {
+            const maxSize = 50 * 1024 * 1024; // 50MB
+            if (file.size > maxSize) {
+                alert('Arquivo muito grande! Máximo: 50MB');
+                return;
+            }
+            
+            videoFile = file;
+            document.getElementById('video-player').src = URL.createObjectURL(file);
+            document.getElementById('video-preview').classList.remove('hidden');
+            document.getElementById('video-info').textContent = `${file.name} - ${formatFileSize(file.size)}`;
+            document.getElementById('video-convert-btn').disabled = false;
+        }
+
+        document.getElementById('video-convert-btn').addEventListener('click', async () => {
+            if (!videoFile) return;
+
+            const operation = document.getElementById('video-operation').value;
+            const btn = document.getElementById('video-convert-btn');
+            const progress = document.getElementById('video-progress');
+            const progressBar = document.getElementById('video-progress-bar');
+            const progressText = document.getElementById('video-progress-text');
+
+            btn.disabled = true;
+            progress.classList.remove('hidden');
+
+            try {
+                if (operation === 'extract-audio') {
+                    progressText.textContent = 'Extraindo áudio...';
+                    progressBar.style.width = '30%';
+                    
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const arrayBuffer = await videoFile.arrayBuffer();
+                    
+                    const decodedAudio = await audioContext.decodeAudioData(arrayBuffer);
+                    progressBar.style.width = '50%';
+                    
+                    // Get channels (handle mono videos)
+                    const numChannels = Math.min(decodedAudio.numberOfChannels, 2);
+                    const sampleRate = decodedAudio.sampleRate;
+                    const leftChannel = decodedAudio.getChannelData(0);
+                    const rightChannel = numChannels > 1 ? decodedAudio.getChannelData(1) : leftChannel;
+
+                    const mp3encoder = new lamejs.Mp3Encoder(numChannels, sampleRate, 192);
+                    const mp3Data = [];
+                    const sampleBlockSize = 1152;
+
+                    for (let i = 0; i < leftChannel.length; i += sampleBlockSize) {
+                        const leftChunk = leftChannel.subarray(i, i + sampleBlockSize);
+                        const rightChunk = rightChannel.subarray(i, i + sampleBlockSize);
+                        
+                        const left = convertFloat32ToInt16(leftChunk);
+                        const right = numChannels > 1 ? convertFloat32ToInt16(rightChunk) : null;
+                        
+                        const mp3buf = numChannels > 1 ? 
+                            mp3encoder.encodeBuffer(left, right) : 
+                            mp3encoder.encodeBuffer(left);
+                        
+                        if (mp3buf.length > 0) {
+                            mp3Data.push(mp3buf);
+                        }
+                    }
+
+                    const finalMp3 = mp3encoder.flush();
+                    if (finalMp3.length > 0) {
+                        mp3Data.push(finalMp3);
+                    }
+
+                    const blob = new Blob(mp3Data, { type: 'audio/mp3' });
+                    downloadFile(blob, videoFile.name.replace(/\.[^.]+$/, '.mp3'));
+
+                    progressBar.style.width = '100%';
+                    progressText.textContent = '✅ Áudio extraído com sucesso!';
+                    
+                } else if (operation === 'create-gif') {
+                    progressText.textContent = 'Criando GIF (primeiros 5 segundos)...';
+                    progressBar.style.width = '20%';
+                    
+                    const video = document.getElementById('video-player');
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Set size (max 480px width)
+                    const scale = Math.min(1, 480 / video.videoWidth);
+                    canvas.width = Math.round(video.videoWidth * scale);
+                    canvas.height = Math.round(video.videoHeight * scale);
+                    
+                    // Capture frames
+                    const frames = [];
+                    const fps = 10;
+                    const duration = Math.min(5, video.duration);
+                    const totalFrames = Math.floor(duration * fps);
+                    
+                    video.currentTime = 0;
+                    
+                    for (let i = 0; i < totalFrames; i++) {
+                        await new Promise(resolve => {
+                            video.currentTime = i / fps;
+                            video.onseeked = () => {
+                                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                                frames.push(canvas.toDataURL('image/png'));
+                                progressBar.style.width = (20 + (i / totalFrames) * 70) + '%';
+                                resolve();
+                            };
+                        });
+                    }
+                    
+                    // Note: Full GIF encoding requires gif.js library
+                    // For now, download as PNG sequence info
+                    progressBar.style.width = '100%';
+                    progressText.textContent = `✅ Capturados ${frames.length} frames. GIF requer biblioteca adicional (gif.js).`;
+                    alert(`Foram capturados ${frames.length} frames do vídeo.\n\nPara criar um GIF animado completo, recomendamos usar ferramentas como ezgif.com ou giphy.com`);
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Erro ao processar vídeo: ' + error.message);
+                progress.classList.add('hidden');
+            }
+            
+            btn.disabled = false;
+        });
+
+        // ============ OTHER TOOLS ============
+
+        // Base64 Encoder
+        document.getElementById('base64-encode').addEventListener('click', () => {
+            const file = document.getElementById('base64-file-input').files[0];
+            if (!file) {
+                alert('Selecione um arquivo');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const base64 = e.target.result.split(',')[1]; // Remove data URL prefix
+                document.getElementById('base64-text').value = base64;
+            };
+            reader.onerror = () => alert('Erro ao ler arquivo');
+            reader.readAsDataURL(file);
+        });
+
+        // Base64 Decoder
+        document.getElementById('base64-decode').addEventListener('click', () => {
+            const base64 = document.getElementById('base64-text').value.trim();
+            if (!base64) {
+                alert('Cole o código Base64');
+                return;
+            }
+
+            try {
+                // Remove potential data URL prefix
+                const cleanBase64 = base64.replace(/^data:[^;]+;base64,/, '');
+                const binary = atob(cleanBase64);
+                const bytes = new Uint8Array(binary.length);
+                for (let i = 0; i < binary.length; i++) {
+                    bytes[i] = binary.charCodeAt(i);
+                }
+                const blob = new Blob([bytes], { type: 'application/octet-stream' });
+                downloadFile(blob, 'arquivo-decodificado.bin');
+            } catch (error) {
+                alert('Base64 inválido: ' + error.message);
+            }
+        });
+
+        // QR Code Generator
+        document.getElementById('qr-generate').addEventListener('click', () => {
+            const text = document.getElementById('qr-text').value.trim();
+            if (!text) {
+                alert('Digite um texto ou URL');
+                return;
+            }
+
+            const qrResult = document.getElementById('qr-result');
+            qrResult.innerHTML = '';
+            
+            try {
+                new QRCode(qrResult, {
+                    text: text,
+                    width: 180,
+                    height: 180,
+                    colorDark: '#000000',
+                    colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+
+                // Add download button after QR is generated
+                setTimeout(() => {
+                    const canvas = qrResult.querySelector('canvas');
+                    if (canvas) {
+                        const downloadBtn = document.createElement('button');
+                        downloadBtn.textContent = '⬇️ Baixar PNG';
+                        downloadBtn.className = 'mt-3 bg-teal-600 hover:bg-teal-700 px-4 py-2 rounded-lg font-semibold w-full text-white text-sm';
+                        downloadBtn.onclick = () => {
+                            canvas.toBlob((blob) => {
+                                downloadFile(blob, 'qrcode.png');
+                            });
+                        };
+                        qrResult.appendChild(downloadBtn);
+                    }
+                }, 200);
+            } catch (error) {
+                alert('Erro ao gerar QR Code: ' + error.message);
+            }
+        });
+
+        // ZIP Creator
+        document.getElementById('zip-files-input').addEventListener('change', (e) => {
+            const count = e.target.files.length;
+            document.getElementById('zip-files-count').textContent = 
+                count > 0 ? `${count} arquivo(s) selecionado(s)` : 'Nenhum arquivo selecionado';
+        });
+
+        document.getElementById('zip-create').addEventListener('click', async () => {
+            const files = document.getElementById('zip-files-input').files;
+            if (files.length === 0) {
+                alert('Selecione pelo menos um arquivo');
+                return;
+            }
+
+            try {
+                const zip = new JSZip();
+                
+                for (let file of files) {
+                    const content = await file.arrayBuffer();
+                    zip.file(file.name, content);
+                }
+
+                const blob = await zip.generateAsync({ 
+                    type: 'blob',
+                    compression: 'DEFLATE',
+                    compressionOptions: { level: 6 }
+                });
+                
+                downloadFile(blob, 'arquivos.zip');
+            } catch (error) {
+                alert('Erro ao criar ZIP: ' + error.message);
+            }
+        });
+
+        // Hash Generator
+        document.getElementById('hash-generate').addEventListener('click', async () => {
+            const text = document.getElementById('hash-input').value;
+            if (!text.trim()) {
+                alert('Digite um texto');
+                return;
+            }
+
+            try {
+                const hashType = document.getElementById('hash-type').value;
+                const encoder = new TextEncoder();
+                const data = encoder.encode(text);
+                
+                const hashBuffer = await crypto.subtle.digest(hashType, data);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                
+                const resultDiv = document.getElementById('hash-result');
+                resultDiv.textContent = hashHex;
+                resultDiv.classList.remove('hidden');
+            } catch (error) {
+                alert('Erro ao gerar hash: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+<Files "*.db">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files ".env">
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Impedir listagem de diretórios
+Options -Indexes
