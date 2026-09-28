@@ -74,17 +74,27 @@ body {
     border-bottom: 1px solid var(--glass-border);
 }
 
-/* Inputs e Botões */
+/* Inputs e Controles Padronizados 4U */
 select,
 input[type="text"],
 input[type="number"],
 textarea {
-    background: rgba(30, 41, 59, 0.7) !important;
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
-    color: white !important;
+    background: rgba(30, 41, 59, 0.75) !important;
+    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+    color: #ffffff !important;
     border-radius: 12px !important;
+    padding: 0 14px;
+    height: 42px;
+    line-height: 40px;
+    box-sizing: border-box;
+    font-size: 0.8125rem;
+    transition: all 0.2s ease;
+}
+
+textarea {
+    height: auto;
     padding: 10px 14px;
-    transition: all 0.25s ease;
+    line-height: 1.5;
 }
 
 select {
@@ -93,8 +103,8 @@ select {
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 8l4 4 4-4'/%3e%3c/svg%3e") !important;
     background-position: right 0.75rem center !important;
     background-repeat: no-repeat !important;
-    background-size: 1.25em 1.25em !important;
-    padding-right: 2.5rem !important;
+    background-size: 1.15em 1.15em !important;
+    padding-right: 2.25rem !important;
     cursor: pointer;
 }
 
@@ -108,8 +118,76 @@ input:focus,
 select:focus,
 textarea:focus {
     border-color: #6366f1 !important;
+    outline: none !important;
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3) !important;
+}
+
+/* Custom Range Slider Padronizado */
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 9999px;
     outline: none;
-    box-shadow: 0 0 12px rgba(99, 102, 241, 0.4);
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #6366f1;
+    border: 2px solid #ffffff;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.6);
+    cursor: pointer;
+    transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+    background: #818cf8;
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #6366f1;
+    border: 2px solid #ffffff;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.6);
+    cursor: pointer;
+}
+
+/* Card de Controle Padronizado */
+.control-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 12px 14px;
+    transition: border-color 0.2s, background-color 0.2s;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.control-card:hover {
+    border-color: rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.control-label {
+    display: block;
+    font-size: 0.6875rem; /* 11px */
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #94a3b8;
+    margin-bottom: 8px;
 }
 
 .btn-primary {

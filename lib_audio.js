@@ -70,26 +70,26 @@ window.audioConverter = {
                         </div>
                     </div>
 
-                    <!-- Configurações de Saída -->
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-300 mb-1">Formato de Saída</label>
-                            <select id="audio-output-format" class="w-full text-xs">
+                    <!-- Configurações de Saída Padronizadas 4U -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-2">
+                        <div class="control-card">
+                            <label class="control-label">Formato de Saída</label>
+                            <select id="audio-output-format" class="w-full text-xs font-semibold">
                                 <option value="mp3" selected>MP3 (Universal e Leve)</option>
                                 <option value="wav">WAV (Lossless Sem Perdas)</option>
                             </select>
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-300 mb-1">Taxa de Bits (Bitrate)</label>
-                            <select id="audio-bitrate" class="w-full text-xs">
+                        <div class="control-card">
+                            <label class="control-label">Taxa de Bits (Bitrate)</label>
+                            <select id="audio-bitrate" class="w-full text-xs font-semibold">
                                 <option value="128">128 kbps (Econômico)</option>
                                 <option value="192" selected>192 kbps (Padrão Alta Definição)</option>
                                 <option value="320">320 kbps (Estúdio / Audiófilo)</option>
                             </select>
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-300 mb-1">Canais</label>
-                            <select id="audio-channels" class="w-full text-xs">
+                        <div class="control-card">
+                            <label class="control-label">Canais de Áudio</label>
+                            <select id="audio-channels" class="w-full text-xs font-semibold">
                                 <option value="2" selected>Estéreo (2 Canais)</option>
                                 <option value="1">Mono (1 Canal)</option>
                             </select>

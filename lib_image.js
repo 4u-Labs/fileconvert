@@ -1,6 +1,7 @@
 /**
  * FileConvert - lib_image.js
  * Conversão de imagens em lote, redimensionamento, remoção de EXIF e gerador de Favicon
+ * Padrão Oficial 4U.IA.BR
  */
 
 window.imageConverter = {
@@ -22,8 +23,8 @@ window.imageConverter = {
                         </div>
                     </div>
                     
-                    <button type="button" onclick="imageConverter.openFaviconTool()" class="text-xs font-bold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 px-3 py-1.5 rounded-xl transition flex items-center gap-1.5">
-                        <span>⭐</span> Gerar Pacote Favicon
+                    <button type="button" onclick="imageConverter.openFaviconTool()" class="text-xs font-bold bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-3.5 py-1.5 rounded-xl transition flex items-center gap-1.5">
+                        <span>🌟</span> Gerador de Favicon (.ZIP)
                     </button>
                 </div>
 
@@ -37,40 +38,56 @@ window.imageConverter = {
 
                 <!-- Preview Area / Lista de Arquivos -->
                 <div id="image-files-area" class="hidden space-y-4">
-                    <div class="flex justify-between items-center text-xs text-slate-300 pb-2 border-b border-white/10">
-                        <span class="font-bold"><span id="image-count">0</span> imagem(ns) selecionada(s)</span>
-                        <button type="button" onclick="imageConverter.clearFiles()" class="text-rose-400 hover:text-rose-300 font-bold">Limpar Seleção</button>
+                    <div class="flex flex-wrap justify-between items-center text-xs text-slate-300 pb-2 border-b border-white/10 gap-2">
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-white"><span id="image-count">0</span> imagem(ns) selecionada(s)</span>
+                            <span id="image-total-size" class="text-[11px] text-slate-400 font-mono">0 KB</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <input type="file" id="image-input-more" accept="image/*" multiple class="hidden">
+                            <button type="button" onclick="document.getElementById('image-input-more').click()" class="text-xs font-bold text-indigo-400 hover:text-indigo-300 px-2.5 py-1 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 transition flex items-center gap-1">
+                                <span>+</span> Adicionar Fotos
+                            </button>
+                            <button type="button" onclick="imageConverter.clearFiles()" class="text-xs text-rose-400 hover:text-rose-300 font-bold px-2 py-1">
+                                Limpar Seleção
+                            </button>
+                        </div>
                     </div>
 
-                    <!-- Miniaturas em Grid -->
-                    <div id="image-thumbnails-grid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3 max-h-48 overflow-y-auto p-2 bg-white/5 rounded-xl border border-white/10">
-                        <!-- Thumbs injetadas via JS -->
+                    <!-- Miniaturas / Preview Dinâmico -->
+                    <div id="image-thumbnails-wrapper" class="space-y-2">
+                        <!-- Injetado via JS -->
                     </div>
 
-                    <!-- Configurações de Saída -->
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-300 mb-1">Formato de Saída</label>
-                            <select id="image-format" class="w-full text-xs">
+                    <!-- Configurações de Saída Padronizadas 4U -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-2">
+                        <!-- Card 1: Formato -->
+                        <div class="control-card">
+                            <label class="control-label">Formato de Saída</label>
+                            <select id="image-format" class="w-full text-xs font-semibold">
                                 <option value="webp" selected>WebP (Mais leve e moderno)</option>
-                                <option value="jpeg">JPEG / JPG (Universal)</option>
-                                <option value="png">PNG (Transparência sem perdas)</option>
+                                <option value="jpeg">JPG / JPEG (Universal)</option>
+                                <option value="png">PNG (Sem perdas / Transparente)</option>
                                 <option value="bmp">BMP (Bitmap padrão)</option>
                             </select>
                         </div>
 
-                        <div>
-                            <div class="flex justify-between items-center mb-1">
-                                <label class="text-xs font-bold text-slate-300">Qualidade de Compressão</label>
-                                <span id="img-quality-val" class="text-xs font-extrabold text-cyan-300">85%</span>
+                        <!-- Card 2: Qualidade -->
+                        <div class="control-card">
+                            <div class="flex justify-between items-center mb-2">
+                                <label class="control-label mb-0">Qualidade de Compressão</label>
+                                <span id="img-quality-val" class="text-xs font-mono font-bold text-indigo-400 bg-indigo-500/20 px-2 py-0.5 rounded-full border border-indigo-500/30">85%</span>
                             </div>
-                            <input type="range" id="image-quality" min="10" max="100" value="85" class="w-full accent-cyan-500 cursor-pointer">
+                            <div class="flex items-center h-[42px] px-3 bg-slate-900/60 rounded-xl border border-white/10">
+                                <input type="range" id="image-quality" min="10" max="100" value="85" class="w-full cursor-pointer">
+                            </div>
                         </div>
 
-                        <div>
-                            <label class="block text-xs font-bold text-slate-300 mb-1">Escala / Redimensionamento</label>
-                            <select id="image-scale" class="w-full text-xs">
-                                <option value="1.0" selected>Manter Tamanho Original (100%)</option>
+                        <!-- Card 3: Escala -->
+                        <div class="control-card">
+                            <label class="control-label">Escala / Dimensão</label>
+                            <select id="image-scale" class="w-full text-xs font-semibold">
+                                <option value="1.0" selected>Original (100%)</option>
                                 <option value="0.75">Reduzir para 75%</option>
                                 <option value="0.50">Reduzir para 50% (Metade)</option>
                                 <option value="0.25">Reduzir para 25% (Miniatura)</option>
@@ -94,7 +111,7 @@ window.imageConverter = {
                     <!-- Opções Extras -->
                     <div class="flex flex-wrap items-center gap-6 pt-1 text-xs">
                         <label class="inline-flex items-center gap-2 cursor-pointer text-slate-300 select-none">
-                            <input type="checkbox" id="strip-exif" checked class="w-4 h-4 accent-cyan-500 rounded">
+                            <input type="checkbox" id="strip-exif" checked class="w-4 h-4 accent-indigo-500 rounded">
                             <span>🛡️ Limpar metadados EXIF e GPS (Privacidade Total)</span>
                         </label>
                     </div>
@@ -129,11 +146,22 @@ window.imageConverter = {
     init: function () {
         utils.setupDropZone('image-drop-zone', 'image-input', (files) => this.handleFiles(files), true);
 
+        // Input para adicionar mais imagens após a seleção inicial
+        const addMoreInput = document.getElementById('image-input-more');
+        if (addMoreInput) {
+            addMoreInput.onchange = (e) => {
+                if (e.target.files.length) {
+                    this.handleFiles(Array.from(e.target.files));
+                    e.target.value = '';
+                }
+            };
+        }
+
         const qualitySlider = document.getElementById('image-quality');
-        const qualityVal = document.getElementById('quality-val');
         if (qualitySlider) {
             qualitySlider.oninput = (e) => {
-                document.getElementById('img-quality-val').textContent = e.target.value + '%';
+                const valEl = document.getElementById('img-quality-val');
+                if (valEl) valEl.textContent = e.target.value + '%';
             };
         }
 
@@ -141,51 +169,130 @@ window.imageConverter = {
         if (scaleSelect) {
             scaleSelect.onchange = (e) => {
                 const box = document.getElementById('custom-dim-box');
-                if (e.target.value === 'custom') {
-                    box.classList.remove('hidden');
-                } else {
-                    box.classList.add('hidden');
+                if (box) {
+                    if (e.target.value === 'custom') {
+                        box.classList.remove('hidden');
+                    } else {
+                        box.classList.add('hidden');
+                    }
                 }
             };
         }
     },
 
-    handleFiles: function (files) {
-        if (!files || !files.length) return;
-        this.files = files;
+    handleFiles: function (newFiles) {
+        if (!newFiles || !newFiles.length) return;
+        const incoming = Array.from(newFiles);
+        const existingKeys = new Set(this.files.map(f => f.name + '_' + f.size));
+        const filtered = incoming.filter(f => !existingKeys.has(f.name + '_' + f.size));
+
+        this.files = this.files.concat(filtered);
         this.convertedList = [];
 
+        document.getElementById('image-drop-zone').classList.add('hidden');
         document.getElementById('image-files-area').classList.remove('hidden');
-        document.getElementById('image-count').textContent = files.length;
         document.getElementById('btn-download-all-img-zip').style.display = 'none';
 
-        const grid = document.getElementById('image-thumbnails-grid');
-        grid.innerHTML = '';
+        this.renderThumbnails();
+        app.showToast(`${this.files.length} imagem(ns) carregada(s)!`);
+    },
 
-        files.forEach((file, index) => {
+    renderThumbnails: function () {
+        const wrapper = document.getElementById('image-thumbnails-wrapper');
+        const countEl = document.getElementById('image-count');
+        const totalSizeEl = document.getElementById('image-total-size');
+
+        if (!wrapper) return;
+
+        if (this.files.length === 0) {
+            this.clearFiles();
+            return;
+        }
+
+        countEl.textContent = this.files.length;
+        const totalBytes = this.files.reduce((acc, f) => acc + f.size, 0);
+        totalSizeEl.textContent = `• Total: ${utils.formatBytes(totalBytes)}`;
+
+        wrapper.innerHTML = '';
+
+        if (this.files.length === 1) {
+            // Layout Hero para 1 imagem (Sem caixa preta vazia)
+            const file = this.files[0];
             const div = document.createElement('div');
-            div.className = 'relative group aspect-square rounded-lg overflow-hidden bg-black/40 border border-white/10 flex items-center justify-center';
+            div.className = 'flex items-center gap-4 p-3 bg-white/5 rounded-2xl border border-white/10';
 
             const img = document.createElement('img');
             img.src = URL.createObjectURL(file);
-            img.className = 'w-full h-full object-cover';
+            img.className = 'w-16 h-16 object-cover rounded-xl border border-white/10 shrink-0';
             div.appendChild(img);
 
-            const badge = document.createElement('span');
-            badge.className = 'absolute bottom-1 right-1 text-[9px] bg-slate-950/80 px-1 rounded text-white/70 font-mono';
-            badge.textContent = utils.formatBytes(file.size);
-            div.appendChild(badge);
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'truncate flex-1';
+            infoDiv.innerHTML = `
+                <h4 class="text-sm font-bold text-white truncate max-w-sm sm:max-w-md">${file.name}</h4>
+                <p class="text-xs text-slate-400 font-mono mt-0.5">${utils.formatBytes(file.size)} • ${file.type || 'Imagem'}</p>
+            `;
+            div.appendChild(infoDiv);
 
-            grid.appendChild(div);
-        });
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.onclick = () => imageConverter.removeFile(0);
+            removeBtn.className = 'p-2 text-slate-400 hover:text-rose-400 transition';
+            removeBtn.title = 'Remover imagem';
+            removeBtn.innerHTML = '✕';
+            div.appendChild(removeBtn);
 
-        app.showToast(`${files.length} imagem(ns) carregada(s)!`);
+            wrapper.appendChild(div);
+        } else {
+            // Grid responsivo e balanceado para múltiplas imagens
+            const grid = document.createElement('div');
+            grid.className = 'grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3 max-h-56 overflow-y-auto p-2 bg-black/20 rounded-xl border border-white/5';
+
+            this.files.forEach((file, index) => {
+                const div = document.createElement('div');
+                div.className = 'relative group aspect-square rounded-xl overflow-hidden bg-black/40 border border-white/10 flex items-center justify-center';
+
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(file);
+                img.className = 'w-full h-full object-cover';
+                div.appendChild(img);
+
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    imageConverter.removeFile(index);
+                };
+                removeBtn.className = 'absolute top-1 right-1 bg-black/70 hover:bg-rose-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] transition';
+                removeBtn.innerHTML = '✕';
+                div.appendChild(removeBtn);
+
+                const badge = document.createElement('span');
+                badge.className = 'absolute bottom-1 inset-x-1 text-[9px] bg-black/70 px-1 py-0.5 rounded text-white/80 font-mono text-center truncate';
+                badge.textContent = utils.formatBytes(file.size);
+                div.appendChild(badge);
+
+                grid.appendChild(div);
+            });
+
+            wrapper.appendChild(grid);
+        }
+    },
+
+    removeFile: function (index) {
+        this.files.splice(index, 1);
+        if (this.files.length === 0) {
+            this.clearFiles();
+        } else {
+            this.renderThumbnails();
+        }
     },
 
     clearFiles: function () {
         this.files = [];
         this.convertedList = [];
         document.getElementById('image-files-area').classList.add('hidden');
+        document.getElementById('image-drop-zone').classList.remove('hidden');
         document.getElementById('image-input').value = '';
     },
 
